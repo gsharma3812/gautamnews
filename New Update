@@ -1,0 +1,875 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gautam News Channel — India's Fastest News</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@700;900&family=DM+Sans:wght@300;400;500;600&family=Bebas+Neue&display=swap" rel="stylesheet">
+<style>
+:root {
+  --saffron: #FF6B00;
+  --green: #138808;
+  --navy: #07090F;
+  --navy2: #0F1523;
+  --navy3: #1A2035;
+  --card: #141926;
+  --border: rgba(255,255,255,0.07);
+  --text: #E8EAF0;
+  --muted: #6B7280;
+  --muted2: #9CA3AF;
+  --white: #FFFFFF;
+  --red: #EF4444;
+}
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+html { scroll-behavior: smooth; }
+body { font-family: 'DM Sans', sans-serif; background: var(--navy); color: var(--text); overflow-x: hidden; min-height: 100vh; }
+
+.ticker-bar { background: var(--saffron); padding: 7px 0; overflow: hidden; position: relative; }
+.ticker-bar::before, .ticker-bar::after { content:''; position:absolute; top:0; bottom:0; width:60px; z-index:2; }
+.ticker-bar::before { left:0; background:linear-gradient(to right, var(--saffron), transparent); }
+.ticker-bar::after  { right:0; background:linear-gradient(to left, var(--saffron), transparent); }
+.ticker-inner { display:inline-block; white-space:nowrap; animation:scroll-ticker 50s linear infinite; font-size:0.75rem; font-weight:600; letter-spacing:0.06em; color:#fff; }
+@keyframes scroll-ticker { 0%{transform:translateX(100vw)} 100%{transform:translateX(-100%)} }
+
+header { background:var(--navy2); border-bottom:1px solid var(--border); position:sticky; top:0; z-index:200; }
+.header-wrap { max-width:1280px; margin:0 auto; padding:0 24px; display:flex; align-items:center; justify-content:space-between; height:64px; gap:20px; }
+.logo { display:flex; align-items:center; gap:10px; text-decoration:none; flex-shrink:0; }
+.logo-icon { width:36px; height:36px; background:var(--saffron); border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:1.1rem; font-weight:900; color:white; font-family:'Fraunces',serif; }
+.logo-text { font-family:'Fraunces',serif; font-size:1.4rem; font-weight:900; color:var(--white); letter-spacing:-0.02em; }
+.logo-text span { color:var(--saffron); }
+.live-badge { display:flex; align-items:center; gap:6px; font-size:0.65rem; font-weight:700; letter-spacing:0.12em; color:var(--red); text-transform:uppercase; }
+.live-dot { width:7px; height:7px; background:var(--red); border-radius:50%; animation:blink 1.2s ease infinite; }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.2} }
+.clock-display { font-family:'Bebas Neue',sans-serif; font-size:1.3rem; color:var(--white); letter-spacing:0.08em; }
+.clock-display .seconds { color:var(--saffron); }
+
+.cat-nav { background:var(--navy3); border-bottom:1px solid var(--border); position:sticky; top:64px; z-index:150; }
+.cat-nav-inner { max-width:1280px; margin:0 auto; padding:0 24px; display:flex; gap:2px; overflow-x:auto; scrollbar-width:none; }
+.cat-nav-inner::-webkit-scrollbar { display:none; }
+.cat-tab { flex-shrink:0; padding:14px 18px; font-size:0.8rem; font-weight:600; letter-spacing:0.04em; color:var(--muted2); cursor:pointer; border:none; background:none; font-family:'DM Sans',sans-serif; border-bottom:3px solid transparent; transition:all 0.22s; display:flex; align-items:center; gap:6px; white-space:nowrap; }
+.cat-tab:hover { color:var(--white); }
+.cat-tab.active { color:var(--saffron); border-bottom-color:var(--saffron); }
+
+.state-bar { background:rgba(255,255,255,0.03); border-bottom:1px solid var(--border); padding:10px 0; }
+.state-bar-inner { max-width:1280px; margin:0 auto; padding:0 24px; display:flex; gap:8px; overflow-x:auto; scrollbar-width:none; align-items:center; }
+.state-bar-inner::-webkit-scrollbar { display:none; }
+.state-label { font-size:0.65rem; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; color:var(--muted); white-space:nowrap; margin-right:4px; }
+.state-pill { flex-shrink:0; padding:5px 14px; background:var(--navy3); border:1px solid var(--border); border-radius:100px; font-size:0.73rem; font-weight:500; color:var(--muted2); cursor:pointer; transition:all 0.2s; white-space:nowrap; font-family:'DM Sans',sans-serif; }
+.state-pill:hover { background:rgba(255,107,0,0.12); border-color:rgba(255,107,0,0.4); color:var(--saffron); }
+.state-pill.active { background:var(--saffron); border-color:var(--saffron); color:white; font-weight:700; box-shadow:0 0 16px rgba(255,107,0,0.35); }
+
+.state-notice { display:none; background:rgba(255,107,0,0.08); border:1px solid rgba(255,107,0,0.2); border-radius:10px; padding:12px 18px; margin-bottom:16px; font-size:0.82rem; color:var(--saffron); font-weight:600; }
+.state-notice.show { display:block; }
+
+.page-wrap { max-width:1280px; margin:0 auto; padding:28px 24px; display:grid; grid-template-columns:1fr 320px; gap:28px; }
+
+.sec-title { display:flex; align-items:center; gap:12px; margin-bottom:18px; }
+.sec-title h2 { font-family:'Fraunces',serif; font-size:1.25rem; font-weight:700; color:var(--white); letter-spacing:-0.01em; }
+.pill-tag { font-size:0.6rem; font-weight:700; letter-spacing:0.12em; text-transform:uppercase; padding:3px 9px; border-radius:100px; background:rgba(255,107,0,0.15); color:var(--saffron); border:1px solid rgba(255,107,0,0.3); }
+.pill-tag.green { background:rgba(19,136,8,0.15); color:#4ADE80; border-color:rgba(19,136,8,0.3); }
+.pill-tag.blue { background:rgba(96,165,250,0.12); color:#60A5FA; border-color:rgba(96,165,250,0.3); }
+.pill-tag.yellow { background:rgba(251,191,36,0.12); color:#FBB724; border-color:rgba(251,191,36,0.3); }
+.pill-tag.purple { background:rgba(167,139,250,0.12); color:#A78BFA; border-color:rgba(167,139,250,0.3); }
+.sec-line { flex:1; height:1px; background:var(--border); }
+
+.hour-group { margin-bottom:30px; }
+.hour-stamp { display:flex; align-items:center; gap:10px; margin-bottom:14px; }
+.hour-chip { font-family:'Bebas Neue',sans-serif; font-size:0.95rem; letter-spacing:0.1em; padding:4px 14px; border-radius:6px; background:var(--navy3); color:var(--saffron); border:1px solid rgba(255,107,0,0.25); }
+.hour-chip.now { background:var(--saffron); color:white; border-color:transparent; box-shadow:0 0 18px rgba(255,107,0,0.4); }
+.hour-line { flex:1; height:1px; background:var(--border); }
+.hour-new { font-size:0.6rem; font-weight:700; letter-spacing:.1em; color:var(--red); text-transform:uppercase; }
+
+.news-card { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:16px 18px; margin-bottom:10px; cursor:pointer; transition:all 0.22s cubic-bezier(.4,0,.2,1); position:relative; overflow:hidden; }
+.news-card::before { content:''; position:absolute; left:0; top:0; bottom:0; width:3px; background:transparent; transition:background 0.2s; }
+.news-card:hover { border-color:rgba(255,107,0,0.3); background:rgba(255,107,0,0.05); transform:translateY(-2px); box-shadow:0 8px 32px rgba(0,0,0,0.3); }
+.news-card:hover::before { background:var(--saffron); }
+.news-card.breaking::before { background:var(--red); }
+.news-card.breaking { border-color:rgba(239,68,68,0.25); }
+.card-top { display:flex; align-items:center; gap:8px; margin-bottom:8px; flex-wrap:wrap; }
+.cat-tag { font-size:0.58rem; font-weight:700; letter-spacing:0.12em; text-transform:uppercase; padding:3px 9px; border-radius:4px; background:rgba(255,107,0,0.15); color:var(--saffron); }
+.cat-tag.red { background:rgba(239,68,68,0.15); color:var(--red); }
+.cat-tag.green { background:rgba(74,222,128,0.1); color:#4ADE80; }
+.cat-tag.blue { background:rgba(96,165,250,0.12); color:#60A5FA; }
+.cat-tag.purple { background:rgba(167,139,250,0.12); color:#A78BFA; }
+.cat-tag.yellow { background:rgba(251,191,36,0.12); color:#FBB724; }
+.breaking-flag { font-size:0.58rem; font-weight:800; letter-spacing:0.15em; text-transform:uppercase; color:var(--red); display:flex; align-items:center; gap:4px; }
+.breaking-flag::before { content:''; width:6px; height:6px; background:var(--red); border-radius:50%; animation:blink 0.8s infinite; }
+.news-card h3 { font-family:'Fraunces',serif; font-size:1rem; font-weight:700; line-height:1.45; color:var(--white); margin-bottom:6px; letter-spacing:-0.01em; }
+.news-card p { font-size:0.82rem; color:var(--muted2); line-height:1.6; margin-bottom:10px; }
+.card-meta { display:flex; align-items:center; gap:12px; font-size:0.68rem; color:var(--muted); flex-wrap:wrap; }
+
+.digest-wrap { background:linear-gradient(135deg,#0F1A2E 0%,#1A1030 100%); border:1px solid rgba(255,107,0,0.2); border-radius:16px; padding:26px; position:relative; overflow:hidden; margin-bottom:28px; }
+.digest-wrap::after { content:'॥'; position:absolute; right:-10px; bottom:-20px; font-size:9rem; color:rgba(255,107,0,0.04); font-family:serif; }
+.digest-edition { font-size:0.65rem; font-weight:700; letter-spacing:0.15em; color:var(--saffron); text-transform:uppercase; margin-bottom:18px; display:flex; align-items:center; gap:8px; }
+.digest-edition::before { content:''; flex:0 0 16px; height:2px; background:var(--saffron); border-radius:1px; }
+.digest-item { display:flex; gap:14px; padding:13px 0; border-bottom:1px solid rgba(255,255,255,0.05); cursor:pointer; transition:all 0.18s; }
+.digest-item:last-child { border-bottom:none; padding-bottom:0; }
+.digest-item:hover .digest-n { color:var(--saffron); }
+.digest-n { font-family:'Bebas Neue',sans-serif; font-size:1.5rem; color:rgba(255,107,0,0.3); min-width:30px; line-height:1; transition:color 0.2s; }
+.digest-text h4 { font-size:0.88rem; font-weight:600; color:var(--white); margin-bottom:3px; line-height:1.4; }
+.digest-text p { font-size:0.77rem; color:var(--muted2); line-height:1.55; }
+
+.sidebar { display:flex; flex-direction:column; gap:20px; }
+.widget { background:var(--card); border:1px solid var(--border); border-radius:14px; overflow:hidden; }
+.widget-head { padding:12px 18px; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; }
+.widget-head h3 { font-size:0.78rem; font-weight:700; letter-spacing:0.08em; text-transform:uppercase; color:var(--white); display:flex; align-items:center; gap:7px; }
+.widget-body { padding:16px 18px; }
+
+.nl-widget { background:linear-gradient(135deg,#1A0A00,#2D1500); border:1px solid rgba(255,107,0,0.3); border-radius:14px; padding:22px 20px; position:relative; overflow:hidden; }
+.nl-widget::before { content:'✉'; position:absolute; right:-12px; top:-8px; font-size:6rem; opacity:0.06; }
+.nl-widget h3 { font-family:'Fraunces',serif; font-size:1.1rem; font-weight:700; color:var(--white); margin-bottom:6px; }
+.nl-widget p { font-size:0.78rem; color:var(--muted2); margin-bottom:16px; line-height:1.55; }
+.nl-input { width:100%; background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.1); border-radius:8px; padding:10px 14px; font-size:0.82rem; color:var(--white); font-family:'DM Sans',sans-serif; outline:none; margin-bottom:8px; transition:border-color 0.2s; }
+.nl-input::placeholder { color:var(--muted); }
+.nl-input:focus { border-color:var(--saffron); }
+.nl-btn { width:100%; background:var(--saffron); color:white; border:none; border-radius:8px; padding:11px; font-size:0.8rem; font-weight:700; letter-spacing:0.06em; cursor:pointer; font-family:'DM Sans',sans-serif; transition:all 0.2s; box-shadow:0 4px 20px rgba(255,107,0,0.3); }
+.nl-btn:hover { background:#FF8C30; transform:translateY(-1px); }
+.nl-success { display:none; text-align:center; padding:10px; background:rgba(74,222,128,0.12); border:1px solid rgba(74,222,128,0.3); border-radius:8px; font-size:0.8rem; font-weight:600; color:#4ADE80; margin-top:8px; }
+
+.trend-item { display:flex; align-items:flex-start; gap:12px; padding:11px 0; border-bottom:1px solid var(--border); cursor:pointer; transition:all 0.18s; }
+.trend-item:last-child { border-bottom:none; padding-bottom:0; }
+.trend-item:hover .trend-title { color:var(--saffron); }
+.trend-n { font-family:'Bebas Neue',sans-serif; font-size:1.3rem; color:rgba(255,107,0,0.4); min-width:24px; line-height:1.1; }
+.trend-title { font-size:0.82rem; font-weight:600; color:var(--text); line-height:1.4; margin-bottom:2px; transition:color 0.18s; }
+.trend-sub { font-size:0.65rem; color:var(--muted); }
+
+.wx-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+.wx-card { background:rgba(255,255,255,0.04); border:1px solid var(--border); border-radius:10px; padding:10px 12px; text-align:center; }
+.wx-city { font-size:0.65rem; font-weight:700; letter-spacing:0.08em; text-transform:uppercase; color:var(--muted2); margin-bottom:4px; }
+.wx-temp { font-family:'Bebas Neue',sans-serif; font-size:1.6rem; color:var(--white); line-height:1; }
+.wx-desc { font-size:0.62rem; color:var(--muted); margin-top:2px; }
+
+.mkt-row { display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px solid var(--border); }
+.mkt-row:last-child { border-bottom:none; padding-bottom:0; }
+.mkt-name { font-size:0.82rem; font-weight:600; color:var(--white); }
+.mkt-sub { font-size:0.65rem; color:var(--muted); margin-top:1px; }
+.mkt-val { font-family:'Bebas Neue',sans-serif; font-size:1.05rem; color:var(--white); text-align:right; }
+.mkt-chg { font-size:0.7rem; font-weight:700; text-align:right; }
+.up { color:#4ADE80; } .dn { color:#F87171; }
+
+.content-section { display:none; }
+.content-section.active { display:block; }
+
+@keyframes fadeSlide { from{opacity:0;transform:translateY(14px)} to{opacity:1;transform:translateY(0)} }
+.anim { animation:fadeSlide 0.35s ease both; }
+
+footer { background:var(--navy2); border-top:1px solid var(--border); margin-top:20px; padding:40px 24px 24px; }
+.footer-inner { max-width:1280px; margin:0 auto; }
+.footer-top { display:flex; justify-content:space-between; gap:32px; margin-bottom:36px; flex-wrap:wrap; }
+.footer-brand .fb-logo { font-family:'Fraunces',serif; font-size:1.6rem; font-weight:900; color:var(--white); margin-bottom:6px; }
+.footer-brand .fb-logo span { color:var(--saffron); }
+.footer-brand p { font-size:0.78rem; color:var(--muted); max-width:220px; line-height:1.6; margin-top:6px; }
+.footer-col h4 { font-size:0.7rem; font-weight:700; letter-spacing:0.12em; text-transform:uppercase; color:var(--muted2); margin-bottom:14px; }
+.footer-col a { display:block; font-size:0.8rem; color:var(--muted); text-decoration:none; margin-bottom:8px; transition:color 0.18s; cursor:pointer; }
+.footer-col a:hover { color:var(--saffron); }
+.footer-bottom { border-top:1px solid var(--border); padding-top:18px; display:flex; justify-content:space-between; align-items:center; font-size:0.72rem; color:var(--muted); flex-wrap:wrap; gap:8px; }
+.tricolor { height:3px; background:linear-gradient(to right, #FF6B00 33.3%, #ffffff 33.3% 66.6%, #138808 66.6%); }
+
+.empty-state { text-align:center; padding:60px 20px; color:var(--muted); }
+.empty-state .icon { font-size:3rem; margin-bottom:12px; }
+.empty-state h3 { font-family:'Fraunces',serif; font-size:1.1rem; color:var(--muted2); margin-bottom:8px; }
+.empty-state p { font-size:0.8rem; }
+
+@media(max-width:900px) { .page-wrap{grid-template-columns:1fr} .sidebar{order:-1} }
+@media(max-width:600px) { .header-wrap{padding:0 16px} .page-wrap{padding:16px} .logo-text{font-size:1.1rem} .footer-top{flex-direction:column} }
+</style>
+</head>
+<body>
+
+<div class="ticker-bar">
+  <span class="ticker-inner">🔴 BREAKING: Parliament passes Digital India Infrastructure Bill &nbsp;|&nbsp; Sensex ▲ 312 pts · Nifty ▲ 98 pts &nbsp;|&nbsp; India beats Australia 3-1 in Test series &nbsp;|&nbsp; ISRO deploys GSAT-20 successfully &nbsp;|&nbsp; USD/INR: ₹83.42 &nbsp;|&nbsp; India ranks #5 globally by GDP &nbsp;|&nbsp; Renewable energy hits 200 GW milestone &nbsp;|&nbsp; Delhi AQI: 186 (Moderate) &nbsp;|&nbsp; PM Modi inaugurates new AIIMS in Jammu &nbsp;|&nbsp; India-France sign defence partnership agreement</span>
+</div>
+
+<header>
+  <div class="header-wrap">
+    <div style="display:flex;align-items:center;gap:20px;">
+      <a class="logo" href="#">
+        <div class="logo-icon">G</div>
+        <div class="logo-text">Gautam <span>News</span></div>
+      </a>
+      <div class="live-badge"><div class="live-dot"></div>Live</div>
+    </div>
+    <div style="display:flex;align-items:center;gap:20px;">
+      <div class="clock-display" id="clock">00:00:<span class="seconds" id="sec">00</span></div>
+      <div style="font-size:.7rem;color:var(--muted);text-align:right;line-height:1.5;" id="dateDisp">Loading...</div>
+    </div>
+  </div>
+</header>
+
+<nav class="cat-nav">
+  <div class="cat-nav-inner">
+    <button class="cat-tab active" data-cat="home">🏠 Home</button>
+    <button class="cat-tab" data-cat="politics">🏛️ Politics</button>
+    <button class="cat-tab" data-cat="economy">📊 Economy</button>
+    <button class="cat-tab" data-cat="world">🌏 World</button>
+    <button class="cat-tab" data-cat="sports">🏏 Sports</button>
+    <button class="cat-tab" data-cat="technology">🚀 Technology</button>
+    <button class="cat-tab" data-cat="health">🏥 Health</button>
+    <button class="cat-tab" data-cat="environment">🌿 Environment</button>
+    <button class="cat-tab" data-cat="entertainment">🎬 Entertainment</button>
+    <button class="cat-tab" data-cat="education">📚 Education</button>
+  </div>
+</nav>
+
+<div class="state-bar">
+  <div class="state-bar-inner">
+    <span class="state-label">States →</span>
+    <button class="state-pill active" data-state="National">🇮🇳 National</button>
+    <button class="state-pill" data-state="Delhi">Delhi</button>
+    <button class="state-pill" data-state="Maharashtra">Maharashtra</button>
+    <button class="state-pill" data-state="Tamil Nadu">Tamil Nadu</button>
+    <button class="state-pill" data-state="Karnataka">Karnataka</button>
+    <button class="state-pill" data-state="West Bengal">West Bengal</button>
+    <button class="state-pill" data-state="Gujarat">Gujarat</button>
+    <button class="state-pill" data-state="Rajasthan">Rajasthan</button>
+    <button class="state-pill" data-state="Uttar Pradesh">Uttar Pradesh</button>
+    <button class="state-pill" data-state="Bihar">Bihar</button>
+    <button class="state-pill" data-state="Punjab">Punjab</button>
+    <button class="state-pill" data-state="Telangana">Telangana</button>
+    <button class="state-pill" data-state="Kerala">Kerala</button>
+    <button class="state-pill" data-state="Madhya Pradesh">Madhya Pradesh</button>
+    <button class="state-pill" data-state="Haryana">Haryana</button>
+    <button class="state-pill" data-state="Odisha">Odisha</button>
+    <button class="state-pill" data-state="Assam">Assam</button>
+  </div>
+</div>
+
+<div class="page-wrap">
+  <main id="main-content">
+
+    <!-- HOME -->
+    <div class="content-section active" id="sec-home">
+      <div class="state-notice" id="state-notice-main"></div>
+      <div class="sec-title"><h2>Hourly Updates</h2><div class="pill-tag">Live</div><div class="sec-line"></div></div>
+
+      <div class="hour-group">
+        <div class="hour-stamp"><div class="hour-chip now" id="curHourChip">12:00 PM</div><div class="hour-line"></div><div class="hour-new">● Latest</div></div>
+        <div class="news-card breaking anim" data-state="National" style="animation-delay:.04s">
+          <div class="card-top"><span class="cat-tag red">Breaking</span><span class="breaking-flag">Breaking News</span></div>
+          <h3>Parliament passes landmark Digital India Infrastructure Bill with 321 votes in favour</h3>
+          <p>The bill allocates ₹2.4 lakh crore over 3 years to bring fibre broadband to 6 lakh villages by 2027.</p>
+          <div class="card-meta"><span>🕐 12:45 PM</span><span>📍 New Delhi</span></div>
+        </div>
+        <div class="news-card anim" data-state="National" style="animation-delay:.09s">
+          <div class="card-top"><span class="cat-tag">Economy</span></div>
+          <h3>RBI keeps repo rate unchanged at 6.5% for sixth consecutive meeting, hints at June cut</h3>
+          <p>MPC cites easing inflation and stable reserves; growth forecast upgraded to 7.2% for FY26.</p>
+          <div class="card-meta"><span>🕐 12:20 PM</span><span>📍 Mumbai</span></div>
+        </div>
+        <div class="news-card anim" data-state="National" style="animation-delay:.14s">
+          <div class="card-top"><span class="cat-tag yellow">Sports</span></div>
+          <h3>India retains No. 1 Test ranking after historic 3–1 series win over Australia in Sydney</h3>
+          <p>Jasprit Bumrah finishes with 32 wickets in the series — a record for any Indian fast bowler on Australian soil.</p>
+          <div class="card-meta"><span>🕐 12:05 PM</span><span>📍 Sydney</span></div>
+        </div>
+      </div>
+
+      <div class="hour-group">
+        <div class="hour-stamp"><div class="hour-chip">11:00 AM</div><div class="hour-line"></div></div>
+        <div class="news-card anim" data-state="Delhi" style="animation-delay:.05s">
+          <div class="card-top"><span class="cat-tag blue">Delhi</span></div>
+          <h3>Delhi government unveils ₹8,500 crore metro phase-IV expansion plan connecting 27 new stations</h3>
+          <p>The new corridors will link Tughlaqabad, Inderlok and Aerocity in a single stretch by 2028.</p>
+          <div class="card-meta"><span>🕐 11:50 AM</span><span>📍 New Delhi</span></div>
+        </div>
+        <div class="news-card anim" data-state="Maharashtra" style="animation-delay:.10s">
+          <div class="card-top"><span class="cat-tag purple">Maharashtra</span></div>
+          <h3>Maharashtra cabinet clears 15,000-acre semiconductor fab zone near Pune; Samsung in talks</h3>
+          <p>The state is offering 25-year lease land and 40% capital subsidy to attract global chipmakers.</p>
+          <div class="card-meta"><span>🕐 11:30 AM</span><span>📍 Pune</span></div>
+        </div>
+        <div class="news-card anim" data-state="National" style="animation-delay:.15s">
+          <div class="card-top"><span class="cat-tag green">Health</span></div>
+          <h3>ICMR launches nationwide dengue early-warning system across 200 sentinel hospitals</h3>
+          <p>Real-time data sharing with state governments will enable preemptive fogging and awareness drives.</p>
+          <div class="card-meta"><span>🕐 11:10 AM</span><span>📍 New Delhi</span></div>
+        </div>
+      </div>
+
+      <div class="hour-group">
+        <div class="hour-stamp"><div class="hour-chip">10:00 AM</div><div class="hour-line"></div></div>
+        <div class="news-card anim" data-state="Karnataka" style="animation-delay:.05s">
+          <div class="card-top"><span class="cat-tag blue">Karnataka</span></div>
+          <h3>Bengaluru startups raise record $4.2 billion in Q1 2026, overtaking last year's full-year figure</h3>
+          <p>AI-based agri-tech and fintech sectors dominate funding rounds amid global investor appetite for India.</p>
+          <div class="card-meta"><span>🕐 10:40 AM</span><span>📍 Bengaluru</span></div>
+        </div>
+        <div class="news-card anim" data-state="Uttar Pradesh" style="animation-delay:.10s">
+          <div class="card-top"><span class="cat-tag">Politics</span></div>
+          <h3>UP CM inaugurates 380-km Ganga Expressway fully, cutting Lucknow-Prayagraj travel to 3 hours</h3>
+          <p>The expressway is India's longest greenfield 6-lane highway and will serve 14 districts.</p>
+          <div class="card-meta"><span>🕐 10:15 AM</span><span>📍 Lucknow</span></div>
+        </div>
+      </div>
+
+      <!-- Morning Digest -->
+      <div class="digest-wrap">
+        <div class="digest-edition">— Gautam News Channel · Morning Digest</div>
+        <div class="digest-item"><div class="digest-n">01</div><div class="digest-text"><h4>ISRO successfully places GSAT-20 in geostationary orbit</h4><p>The satellite will provide Ka-band broadband to remote regions and islands.</p></div></div>
+        <div class="digest-item"><div class="digest-n">02</div><div class="digest-text"><h4>India–France sign 5-year strategic defence technology agreement</h4><p>Deal includes joint production of Rafale engines and submarine propulsion systems.</p></div></div>
+        <div class="digest-item"><div class="digest-n">03</div><div class="digest-text"><h4>National Education Policy 2.0 draft released for public comment</h4><p>Proposes multilingual AI tutors, universal foundational literacy standard by Class 3.</p></div></div>
+        <div class="digest-item"><div class="digest-n">04</div><div class="digest-text"><h4>India's forex reserves cross $700 billion for the first time</h4><p>RBI data shows 14-week import cover, highest since 2008 crisis-era peak.</p></div></div>
+        <div class="digest-item"><div class="digest-n">05</div><div class="digest-text"><h4>Supreme Court orders states to submit groundwater extraction audits</h4><p>Bench notes 200% over-extraction in Punjab-Haryana belt; deadline set for 60 days.</p></div></div>
+      </div>
+    </div>
+
+    <!-- POLITICS -->
+    <div class="content-section" id="sec-politics">
+      <div class="sec-title"><h2>Politics</h2><div class="pill-tag">National</div><div class="sec-line"></div></div>
+      <div class="news-card breaking anim" data-state="National">
+        <div class="card-top"><span class="cat-tag red">Breaking</span><span class="breaking-flag">Breaking News</span></div>
+        <h3>Parliament passes Digital India Infrastructure Bill with 321 votes — biggest tech legislation in a decade</h3>
+        <p>The opposition called for a joint parliamentary committee review but the ruling coalition pushed the bill through with a comfortable majority.</p>
+        <div class="card-meta"><span>🕐 12:45 PM</span><span>📍 New Delhi</span></div>
+      </div>
+      <div class="news-card anim" data-state="National" style="animation-delay:.07s">
+        <div class="card-top"><span class="cat-tag">Politics</span></div>
+        <h3>PM Modi chairs all-party meet on border security; five-point consensus reached with opposition</h3>
+        <p>Leaders agreed on expediting border infrastructure along the LAC and reviewing visa protocols with neighbouring countries.</p>
+        <div class="card-meta"><span>🕐 11:30 AM</span><span>📍 New Delhi</span></div>
+      </div>
+      <div class="news-card anim" data-state="Tamil Nadu" style="animation-delay:.12s">
+        <div class="card-top"><span class="cat-tag blue">Tamil Nadu</span></div>
+        <h3>Tamil Nadu CM announces ₹12,000 crore welfare package ahead of by-election season</h3>
+        <p>Package includes free bus passes for women, enhanced noon-meal programme and 5 lakh government jobs over two years.</p>
+        <div class="card-meta"><span>🕐 10:55 AM</span><span>📍 Chennai</span></div>
+      </div>
+      <div class="news-card anim" data-state="West Bengal" style="animation-delay:.17s">
+        <div class="card-top"><span class="cat-tag purple">West Bengal</span></div>
+        <h3>West Bengal governor and CM clash over university appointment; President's Rule rumours dismissed</h3>
+        <p>The state education department insists appointments follow UGC norms; governor's office calls for fresh notification.</p>
+        <div class="card-meta"><span>🕐 10:20 AM</span><span>📍 Kolkata</span></div>
+      </div>
+      <div class="news-card anim" data-state="Bihar" style="animation-delay:.22s">
+        <div class="card-top"><span class="cat-tag yellow">Bihar</span></div>
+        <h3>Bihar announces caste census results; OBC population at 63% — highest recorded in state history</h3>
+        <p>Chief Minister says data will inform revised reservation framework to be presented in the monsoon session of the state assembly.</p>
+        <div class="card-meta"><span>🕐 9:45 AM</span><span>📍 Patna</span></div>
+      </div>
+      <div class="news-card anim" data-state="Gujarat" style="animation-delay:.27s">
+        <div class="card-top"><span class="cat-tag green">Gujarat</span></div>
+        <h3>Gujarat government passes Uniform Civil Code bill — second state after Uttarakhand</h3>
+        <p>The bill will apply to all communities except tribal groups. It is expected to face legal challenges in the High Court.</p>
+        <div class="card-meta"><span>🕐 9:10 AM</span><span>📍 Gandhinagar</span></div>
+      </div>
+    </div>
+
+    <!-- ECONOMY -->
+    <div class="content-section" id="sec-economy">
+      <div class="sec-title"><h2>Economy</h2><div class="pill-tag green">Markets</div><div class="sec-line"></div></div>
+      <div class="news-card breaking anim" data-state="National">
+        <div class="card-top"><span class="cat-tag red">Breaking</span><span class="breaking-flag">Alert</span></div>
+        <h3>India's GDP growth for Q3 FY26 comes in at 7.8% — beats IMF and World Bank forecasts</h3>
+        <p>Manufacturing and services sectors led the surge; agriculture posted a 4.2% growth on the back of record Kharif output.</p>
+        <div class="card-meta"><span>🕐 12:00 PM</span><span>📍 New Delhi</span></div>
+      </div>
+      <div class="news-card anim" data-state="National" style="animation-delay:.07s">
+        <div class="card-top"><span class="cat-tag">Economy</span></div>
+        <h3>RBI keeps repo rate unchanged at 6.5%; MPC signals possible 25-bps cut in June policy</h3>
+        <p>Governor cites a durable decline in headline CPI to 4.1% and robust credit growth at 14.6% year-on-year.</p>
+        <div class="card-meta"><span>🕐 11:15 AM</span><span>📍 Mumbai</span></div>
+      </div>
+      <div class="news-card anim" data-state="National" style="animation-delay:.12s">
+        <div class="card-top"><span class="cat-tag green">Markets</span></div>
+        <h3>Sensex hits all-time high of 82,450; Nifty50 crosses 24,900 — FII buying drives rally</h3>
+        <p>Foreign institutional investors pumped ₹9,800 crore into equities this week amid positive macro data and rate-cut hopes.</p>
+        <div class="card-meta"><span>🕐 10:45 AM</span><span>📍 Mumbai</span></div>
+      </div>
+      <div class="news-card anim" data-state="Maharashtra" style="animation-delay:.17s">
+        <div class="card-top"><span class="cat-tag purple">Maharashtra</span></div>
+        <h3>India's forex reserves cross $700 billion for first time, providing 14 weeks of import cover</h3>
+        <p>RBI's active dollar purchases and strong FDI inflows have been credited for the reserve build-up.</p>
+        <div class="card-meta"><span>🕐 10:10 AM</span><span>📍 Mumbai</span></div>
+      </div>
+      <div class="news-card anim" data-state="Gujarat" style="animation-delay:.22s">
+        <div class="card-top"><span class="cat-tag yellow">Trade</span></div>
+        <h3>India–UAE CEPA trade reaches $85 billion — three years ahead of target; pharma and gems lead</h3>
+        <p>India's medicine exports to the UAE have doubled in two years, making it the top pharmaceuticals supplier in the Gulf.</p>
+        <div class="card-meta"><span>🕐 9:30 AM</span><span>📍 Gandhinagar</span></div>
+      </div>
+      <div class="news-card anim" data-state="National" style="animation-delay:.27s">
+        <div class="card-top"><span class="cat-tag blue">Infrastructure</span></div>
+        <h3>PM GatiShakti adds 4,200 km of rail and road projects worth ₹1.1 lakh crore in Q3</h3>
+        <p>Union Ministry of Railways says 67% of projects are on schedule or ahead of target for the first time since the platform's launch.</p>
+        <div class="card-meta"><span>🕐 9:00 AM</span><span>📍 New Delhi</span></div>
+      </div>
+    </div>
+
+    <!-- WORLD -->
+    <div class="content-section" id="sec-world">
+      <div class="sec-title"><h2>World</h2><div class="pill-tag blue">International</div><div class="sec-line"></div></div>
+      <div class="news-card breaking anim" data-state="National">
+        <div class="card-top"><span class="cat-tag red">Breaking</span><span class="breaking-flag">Breaking News</span></div>
+        <h3>UN Security Council adopts India-backed resolution on AI governance framework — first of its kind</h3>
+        <p>India co-sponsored the resolution with France and Brazil; the US and China abstained but did not veto.</p>
+        <div class="card-meta"><span>🕐 12:30 PM</span><span>📍 New York</span></div>
+      </div>
+      <div class="news-card anim" data-state="National" style="animation-delay:.07s">
+        <div class="card-top"><span class="cat-tag blue">Diplomacy</span></div>
+        <h3>India–France sign 5-year strategic defence technology pact worth €8 billion</h3>
+        <p>Deal covers Rafale-Marine engine co-production, submarine propulsion and satellite navigation co-development.</p>
+        <div class="card-meta"><span>🕐 11:45 AM</span><span>📍 Paris</span></div>
+      </div>
+      <div class="news-card anim" data-state="National" style="animation-delay:.12s">
+        <div class="card-top"><span class="cat-tag yellow">Conflict</span></div>
+        <h3>India evacuates 3,200 nationals from Sudan amid escalating civil conflict near Khartoum</h3>
+        <p>Operation Ganga-2 uses three IAF C-17 sorties and two naval vessels; MEA confirms all nationals are safe.</p>
+        <div class="card-meta"><span>🕐 11:00 AM</span><span>📍 Khartoum</span></div>
+      </div>
+      <div class="news-card anim" data-state="National" style="animation-delay:.17s">
+        <div class="card-top"><span class="cat-tag green">G20</span></div>
+        <h3>India assumes G20 presidency with focus on debt restructuring for Global South nations</h3>
+        <p>Finance Ministry proposes a multilateral platform for renegotiating $1.4 trillion in climate-linked loans.</p>
+        <div class="card-meta"><span>🕐 10:20 AM</span><span>📍 New Delhi</span></div>
+      </div>
+      <div class="news-card anim" data-state="National" style="animation-delay:.22s">
+        <div class="card-top"><span class="cat-tag purple">Science</span></div>
+        <h3>India joins CERN as associate member state; IIT Bombay team to lead muon collider project</h3>
+        <p>The collaboration is expected to generate 14,000 high-skill jobs and accelerate particle physics research domestically.</p>
+        <div class="card-meta"><span>🕐 9:40 AM</span><span>📍 Geneva</span></div>
+      </div>
+    </div>
+
+    <!-- SPORTS -->
+    <div class="content-section" id="sec-sports">
+      <div class="sec-title"><h2>Sports</h2><div class="pill-tag yellow">Live Coverage</div><div class="sec-line"></div></div>
+      <div class="news-card breaking anim" data-state="National">
+        <div class="card-top"><span class="cat-tag red">Breaking</span><span class="breaking-flag">Live Score</span></div>
+        <h3>India vs Australia — 4th Test Day 3: India 387/6 declared; Australia 142/4 at stumps</h3>
+        <p>Shubman Gill's 192 and Rishabh Pant's explosive 88 off 66 balls put India in commanding position heading into Day 4.</p>
+        <div class="card-meta"><span>🕐 Live</span><span>📍 Sydney Cricket Ground</span></div>
+      </div>
+      <div class="news-card anim" data-state="National" style="animation-delay:.07s">
+        <div class="card-top"><span class="cat-tag yellow">Cricket</span></div>
+        <h3>India retains No. 1 ICC Test ranking; Bumrah breaks Kapil Dev's 38-year-old wicket record in Australia</h3>
+        <p>Jasprit Bumrah took his 32nd wicket of the series — the most by any Indian pacer on Australian soil ever.</p>
+        <div class="card-meta"><span>🕐 11:00 AM</span><span>📍 Sydney</span></div>
+      </div>
+      <div class="news-card anim" data-state="National" style="animation-delay:.12s">
+        <div class="card-top"><span class="cat-tag blue">Football</span></div>
+        <h3>India qualifies for 2026 FIFA World Cup Asian playoffs — biggest milestone in football history</h3>
+        <p>The Blue Tigers beat Kuwait 2–0 in the final qualifier match; fans celebrated across the country with massive street gatherings.</p>
+        <div class="card-meta"><span>🕐 10:30 AM</span><span>📍 Kolkata</span></div>
+      </div>
+      <div class="news-card anim" data-state="National" style="animation-delay:.17s">
+        <div class="card-top"><span class="cat-tag purple">Olympics</span></div>
+        <h3>India targeting 15+ medals at 2028 Los Angeles Olympics; SAI launches new ₹3,000-cr elite training fund</h3>
+        <p>Neeraj Chopra, PV Sindhu and Bajrang Punia headline the elite programme alongside 45 emerging athletes.</p>
+        <div class="card-meta"><span>🕐 10:00 AM</span><span>📍 New Delhi</span></div>
+      </div>
+      <div class="news-card anim" data-state="Maharashtra" style="animation-delay:.22s">
+        <div class="card-top"><span class="cat-tag green">Kabaddi</span></div>
+        <h3>Pro Kabaddi Season 11 final: Puneri Paltan defeat Jaipur Pink Panthers 42–38 in a thriller</h3>
+        <p>Paltan captain Fazel Atrachali was named Most Valuable Player of the tournament with 91 tackle points.</p>
+        <div class="card-meta"><span>🕐 9:15 AM</span><span>📍 Mumbai</span></div>
+      </div>
+    </div>
+
+    <!-- TECHNOLOGY -->
+    <div class="content-section" id="sec-technology">
+      <div class="sec-title"><h2>Technology</h2><div class="pill-tag blue">Digital India</div><div class="sec-line"></div></div>
+      <div class="news-card breaking anim" data-state="National">
+        <div class="card-top"><span class="cat-tag red">Breaking</span><span class="breaking-flag">Launch</span></div>
+        <h3>India launches Bhashini 2.0 — real-time AI translation for all 22 scheduled languages on a single platform</h3>
+        <p>The updated platform now handles voice, image and document translation with under 300ms latency, free for all citizens.</p>
+        <div class="card-meta"><span>🕐 12:00 PM</span><span>📍 New Delhi</span></div>
+      </div>
+      <div class="news-card anim" data-state="Karnataka" style="animation-delay:.07s">
+        <div class="card-top"><span class="cat-tag blue">Startups</span></div>
+        <h3>Bengaluru's Krutrim AI raises $500 million Series B, now valued at $5.4 billion</h3>
+        <p>The company says it will use funds to deploy its foundational model across 40 Indian languages and 18 enterprise verticals.</p>
+        <div class="card-meta"><span>🕐 11:20 AM</span><span>📍 Bengaluru</span></div>
+      </div>
+      <div class="news-card anim" data-state="National" style="animation-delay:.12s">
+        <div class="card-top"><span class="cat-tag yellow">Space</span></div>
+        <h3>ISRO successfully places GSAT-20 in orbit; to provide Ka-band broadband to Andaman and Lakshadweep</h3>
+        <p>The satellite also carries India's first optical communication payload, enabling 10 Gbps inter-satellite links.</p>
+        <div class="card-meta"><span>🕐 10:45 AM</span><span>📍 Sriharikota</span></div>
+      </div>
+      <div class="news-card anim" data-state="National" style="animation-delay:.17s">
+        <div class="card-top"><span class="cat-tag purple">Telecom</span></div>
+        <h3>6G trials to begin in six Indian cities from July; government targets commercial rollout by 2030</h3>
+        <p>Jio, Airtel and BSNL are the three designated trial partners; Department of Telecom allocates 71 GHz spectrum band.</p>
+        <div class="card-meta"><span>🕐 10:10 AM</span><span>📍 New Delhi</span></div>
+      </div>
+      <div class="news-card anim" data-state="National" style="animation-delay:.22s">
+        <div class="card-top"><span class="cat-tag green">Semiconductor</span></div>
+        <h3>India Semiconductor Mission approves Tata TSMC fab in Dholera — India's first 28nm chip plant</h3>
+        <p>The plant will manufacture chips for automotive, defence and consumer electronics sectors. First wafers expected by late 2027.</p>
+        <div class="card-meta"><span>🕐 9:30 AM</span><span>📍 Dholera, Gujarat</span></div>
+      </div>
+    </div>
+
+    <!-- HEALTH -->
+    <div class="content-section" id="sec-health">
+      <div class="sec-title"><h2>Health</h2><div class="pill-tag green">Public Health</div><div class="sec-line"></div></div>
+      <div class="news-card breaking anim" data-state="National">
+        <div class="card-top"><span class="cat-tag red">Alert</span><span class="breaking-flag">Health Alert</span></div>
+        <h3>ICMR launches nationwide dengue early-warning AI system across 200 sentinel hospitals</h3>
+        <p>Real-time epidemiological data will flow to state health ministries, enabling preemptive fogging within 24 hours of cluster detection.</p>
+        <div class="card-meta"><span>🕐 12:10 PM</span><span>📍 New Delhi</span></div>
+      </div>
+      <div class="news-card anim" data-state="National" style="animation-delay:.07s">
+        <div class="card-top"><span class="cat-tag green">Milestone</span></div>
+        <h3>India achieves 100% TB notification coverage for first time; PM hails as public health milestone</h3>
+        <p>All 36 states and UTs now report tuberculosis cases through the Ni-kshay portal, unlocking WHO's TB Elimination pathway.</p>
+        <div class="card-meta"><span>🕐 11:30 AM</span><span>📍 New Delhi</span></div>
+      </div>
+      <div class="news-card anim" data-state="Kerala" style="animation-delay:.12s">
+        <div class="card-top"><span class="cat-tag blue">Kerala</span></div>
+        <h3>Kerala becomes India's first state to achieve Universal Health Coverage for all 3.5 crore residents</h3>
+        <p>The Karunya Health Scheme now covers all citizens regardless of income; hospitalisation fully cashless at 820 empanelled hospitals.</p>
+        <div class="card-meta"><span>🕐 10:50 AM</span><span>📍 Thiruvananthapuram</span></div>
+      </div>
+      <div class="news-card anim" data-state="National" style="animation-delay:.17s">
+        <div class="card-top"><span class="cat-tag yellow">Research</span></div>
+        <h3>IISc Bengaluru develops low-cost malaria vaccine using nanoparticle delivery — clinical trials begin</h3>
+        <p>The vaccine shows 94% efficacy in Phase I trials; cost of production estimated at ₹80 per dose, 12x cheaper than existing alternatives.</p>
+        <div class="card-meta"><span>🕐 10:10 AM</span><span>📍 Bengaluru</span></div>
+      </div>
+      <div class="news-card anim" data-state="National" style="animation-delay:.22s">
+        <div class="card-top"><span class="cat-tag purple">Policy</span></div>
+        <h3>Ayushman Bharat extended to cover mental health — ₹5 lakh cover now includes 27 psychiatric conditions</h3>
+        <p>The amendment brings 55 crore beneficiaries under mental health coverage for the first time in India's history.</p>
+        <div class="card-meta"><span>🕐 9:20 AM</span><span>📍 New Delhi</span></div>
+      </div>
+    </div>
+
+    <!-- ENVIRONMENT -->
+    <div class="content-section" id="sec-environment">
+      <div class="sec-title"><h2>Environment</h2><div class="pill-tag green">Climate</div><div class="sec-line"></div></div>
+      <div class="news-card breaking anim" data-state="National">
+        <div class="card-top"><span class="cat-tag green">Milestone</span><span class="breaking-flag">Milestone</span></div>
+        <h3>India hits 200 GW renewable energy capacity — 5 years ahead of original 2030 target</h3>
+        <p>Solar accounts for 140 GW and wind for 55 GW; India is now the world's 3rd-largest renewable power producer.</p>
+        <div class="card-meta"><span>🕐 11:50 AM</span><span>📍 New Delhi</span></div>
+      </div>
+      <div class="news-card anim" data-state="National" style="animation-delay:.07s">
+        <div class="card-top"><span class="cat-tag blue">Climate</span></div>
+        <h3>India submits updated NDC to UNFCCC: 70% clean energy by 2035; net zero by 2060 reaffirmed</h3>
+        <p>The Enhanced NDC also includes commitments to protect 35% of forest cover and halve single-use plastic usage by 2028.</p>
+        <div class="card-meta"><span>🕐 11:00 AM</span><span>📍 New Delhi</span></div>
+      </div>
+      <div class="news-card anim" data-state="Delhi" style="animation-delay:.12s">
+        <div class="card-top"><span class="cat-tag red">Pollution</span></div>
+        <h3>Delhi AQI dips to 'Moderate' for third consecutive week; odd-even scheme suspended after 4 months</h3>
+        <p>CPCB credits a combination of wind shifts, stubble-burning controls and 40% increase in EV fleet among Delhi autos.</p>
+        <div class="card-meta"><span>🕐 10:30 AM</span><span>📍 New Delhi</span></div>
+      </div>
+      <div class="news-card anim" data-state="Odisha" style="animation-delay:.17s">
+        <div class="card-top"><span class="cat-tag yellow">Disaster</span></div>
+        <h3>Cyclone Shakti makes landfall near Puri; NDRF deploys 28 teams, 1.2 lakh evacuated preemptively</h3>
+        <p>IMD issued an orange alert for Odisha and Andhra Pradesh coasts; wind speed recorded at 165 km/h at landfall.</p>
+        <div class="card-meta"><span>🕐 9:45 AM</span><span>📍 Puri, Odisha</span></div>
+      </div>
+      <div class="news-card anim" data-state="National" style="animation-delay:.22s">
+        <div class="card-top"><span class="cat-tag purple">Water</span></div>
+        <h3>Supreme Court orders states to audit groundwater extraction; Punjab-Haryana face 200% over-extraction finding</h3>
+        <p>Expert panel finds aquifer levels in central Punjab have dropped 14 metres in 10 years; deadline of 60 days set for compliance plans.</p>
+        <div class="card-meta"><span>🕐 9:00 AM</span><span>📍 New Delhi</span></div>
+      </div>
+    </div>
+
+    <!-- ENTERTAINMENT -->
+    <div class="content-section" id="sec-entertainment">
+      <div class="sec-title"><h2>Entertainment</h2><div class="pill-tag purple">Bollywood &amp; OTT</div><div class="sec-line"></div></div>
+      <div class="news-card breaking anim" data-state="National">
+        <div class="card-top"><span class="cat-tag purple">Box Office</span><span class="breaking-flag">Record</span></div>
+        <h3>'Bharat Mata' crosses ₹1,000 crore worldwide in 8 days — fastest Hindi film to achieve the milestone</h3>
+        <p>The patriotic epic directed by Rajkumar Hirani surpassed Dangal's 12-day record; overseas markets added ₹220 crore.</p>
+        <div class="card-meta"><span>🕐 12:00 PM</span><span>📍 Mumbai</span></div>
+      </div>
+      <div class="news-card anim" data-state="National" style="animation-delay:.07s">
+        <div class="card-top"><span class="cat-tag blue">OTT</span></div>
+        <h3>Netflix India's 'Sacred Games 3' breaks all streaming records — 42 million views in opening weekend</h3>
+        <p>The finale season of the cult Nawazuddin Siddiqui series also trended in 14 non-English speaking countries globally.</p>
+        <div class="card-meta"><span>🕐 11:15 AM</span><span>📍 Mumbai</span></div>
+      </div>
+      <div class="news-card anim" data-state="Tamil Nadu" style="animation-delay:.12s">
+        <div class="card-top"><span class="cat-tag yellow">South Cinema</span></div>
+        <h3>Rajinikanth's 'Thalaivar 171' shooting begins; film to release in 10 languages simultaneously</h3>
+        <p>The sci-fi action film co-starring Deepika Padukone will be directed by Lokesh Kanagaraj and release in Diwali 2026.</p>
+        <div class="card-meta"><span>🕐 10:30 AM</span><span>📍 Chennai</span></div>
+      </div>
+      <div class="news-card anim" data-state="National" style="animation-delay:.17s">
+        <div class="card-top"><span class="cat-tag green">Awards</span></div>
+        <h3>India wins 3 awards at Cannes Film Festival 2026; documentary 'Pani' takes the Un Certain Regard prize</h3>
+        <p>The 97-minute film about a water crisis in rural Vidarbha received a 6-minute standing ovation at the Palais des Festivals.</p>
+        <div class="card-meta"><span>🕐 9:50 AM</span><span>📍 Cannes</span></div>
+      </div>
+    </div>
+
+    <!-- EDUCATION -->
+    <div class="content-section" id="sec-education">
+      <div class="sec-title"><h2>Education</h2><div class="pill-tag blue">NEP 2.0</div><div class="sec-line"></div></div>
+      <div class="news-card breaking anim" data-state="National">
+        <div class="card-top"><span class="cat-tag blue">Policy</span><span class="breaking-flag">Policy Alert</span></div>
+        <h3>NEP 2.0 draft released for public comment: proposes multilingual AI tutors, coding from Class 1</h3>
+        <p>The draft mandates universal foundational literacy by Class 3, a national AI skill credit system and apprenticeships from Class 9.</p>
+        <div class="card-meta"><span>🕐 11:45 AM</span><span>📍 New Delhi</span></div>
+      </div>
+      <div class="news-card anim" data-state="National" style="animation-delay:.07s">
+        <div class="card-top"><span class="cat-tag yellow">Rankings</span></div>
+        <h3>IIT Bombay enters top 100 in QS World University Rankings for the first time — ranked 94th globally</h3>
+        <p>IIT Delhi (112), IISc Bengaluru (138) and IIT Madras (156) also achieved their highest-ever QS positions this year.</p>
+        <div class="card-meta"><span>🕐 10:45 AM</span><span>📍 New Delhi</span></div>
+      </div>
+      <div class="news-card anim" data-state="National" style="animation-delay:.12s">
+        <div class="card-top"><span class="cat-tag green">Scholarships</span></div>
+        <h3>PM e-Vidya Scholarship expanded: 25 lakh students to receive ₹24,000/year for pursuing STEM courses</h3>
+        <p>The expanded programme specifically targets girl students from rural areas; 60% of beneficiaries must belong to SC/ST/OBC categories.</p>
+        <div class="card-meta"><span>🕐 10:10 AM</span><span>📍 New Delhi</span></div>
+      </div>
+      <div class="news-card anim" data-state="Maharashtra" style="animation-delay:.17s">
+        <div class="card-top"><span class="cat-tag purple">Maharashtra</span></div>
+        <h3>Maharashtra introduces vocational education in 1,200 rural government schools starting June 2026</h3>
+        <p>Trades include solar panel installation, drone operations, AI data annotation and agri-business management.</p>
+        <div class="card-meta"><span>🕐 9:30 AM</span><span>📍 Pune</span></div>
+      </div>
+      <div class="news-card anim" data-state="National" style="animation-delay:.22s">
+        <div class="card-top"><span class="cat-tag red">Exams</span></div>
+        <h3>CBSE announces major reforms: two-attempt system for Class 10 and 12 boards from 2027</h3>
+        <p>Students can take board exams in November and March; best score counted. Competency-based questions to make up 50% of paper.</p>
+        <div class="card-meta"><span>🕐 9:00 AM</span><span>📍 New Delhi</span></div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+
+    <div class="nl-widget">
+      <h3>Stay Informed</h3>
+      <p>Get Gautam News Channel top stories delivered to your inbox every morning at 7 AM.</p>
+      <input class="nl-input" type="email" id="nl-email" placeholder="Your email address">
+      <button class="nl-btn" onclick="subscribeNewsletter()">Subscribe Free →</button>
+      <div class="nl-success" id="nl-success">✓ You're subscribed! Check your inbox.</div>
+    </div>
+
+    <div class="widget">
+      <div class="widget-head"><h3>📈 Markets</h3><span style="font-size:.65rem;color:var(--muted)">Live</span></div>
+      <div class="widget-body">
+        <div class="mkt-row"><div><div class="mkt-name">Sensex</div><div class="mkt-sub">BSE · India</div></div><div><div class="mkt-val">82,450</div><div class="mkt-chg up">▲ +312 (+0.38%)</div></div></div>
+        <div class="mkt-row"><div><div class="mkt-name">Nifty 50</div><div class="mkt-sub">NSE · India</div></div><div><div class="mkt-val">24,912</div><div class="mkt-chg up">▲ +98 (+0.39%)</div></div></div>
+        <div class="mkt-row"><div><div class="mkt-name">USD/INR</div><div class="mkt-sub">Forex</div></div><div><div class="mkt-val">₹83.42</div><div class="mkt-chg dn">▼ -0.12</div></div></div>
+        <div class="mkt-row"><div><div class="mkt-name">Gold (MCX)</div><div class="mkt-sub">₹ / 10g</div></div><div><div class="mkt-val">71,840</div><div class="mkt-chg up">▲ +220</div></div></div>
+        <div class="mkt-row"><div><div class="mkt-name">Brent Crude</div><div class="mkt-sub">$/barrel</div></div><div><div class="mkt-val">$81.30</div><div class="mkt-chg dn">▼ -0.45</div></div></div>
+      </div>
+    </div>
+
+    <div class="widget">
+      <div class="widget-head"><h3>🔥 Trending</h3></div>
+      <div class="widget-body">
+        <div class="trend-item"><div class="trend-n">1</div><div><div class="trend-title">Digital India Bill</div><div class="trend-sub">Parliament · 2.4 lakh crore</div></div></div>
+        <div class="trend-item"><div class="trend-n">2</div><div><div class="trend-title">India vs Australia 4th Test</div><div class="trend-sub">Cricket · Live</div></div></div>
+        <div class="trend-item"><div class="trend-n">3</div><div><div class="trend-title">Sensex All-Time High</div><div class="trend-sub">Markets · 82,450</div></div></div>
+        <div class="trend-item"><div class="trend-n">4</div><div><div class="trend-title">NEP 2.0 Draft</div><div class="trend-sub">Education · AI tutors</div></div></div>
+        <div class="trend-item"><div class="trend-n">5</div><div><div class="trend-title">Cyclone Shakti</div><div class="trend-sub">Odisha · Puri landfall</div></div></div>
+        <div class="trend-item"><div class="trend-n">6</div><div><div class="trend-title">Bharat Mata ₹1000 Cr</div><div class="trend-sub">Box Office · 8 days</div></div></div>
+        <div class="trend-item"><div class="trend-n">7</div><div><div class="trend-title">IIT Bombay Top 100</div><div class="trend-sub">QS Rankings · 94th</div></div></div>
+      </div>
+    </div>
+
+    <div class="widget">
+      <div class="widget-head"><h3>🌤 Weather</h3><span style="font-size:.65rem;color:var(--muted)">India · Today</span></div>
+      <div class="widget-body">
+        <div class="wx-grid">
+          <div class="wx-card"><div class="wx-city">Delhi</div><div class="wx-temp">29°</div><div class="wx-desc">Partly Cloudy</div></div>
+          <div class="wx-card"><div class="wx-city">Mumbai</div><div class="wx-temp">33°</div><div class="wx-desc">Humid</div></div>
+          <div class="wx-card"><div class="wx-city">Bengaluru</div><div class="wx-temp">24°</div><div class="wx-desc">Mild &amp; Clear</div></div>
+          <div class="wx-card"><div class="wx-city">Chennai</div><div class="wx-temp">36°</div><div class="wx-desc">Hot &amp; Sunny</div></div>
+          <div class="wx-card"><div class="wx-city">Kolkata</div><div class="wx-temp">31°</div><div class="wx-desc">Thunderstorm</div></div>
+          <div class="wx-card"><div class="wx-city">Hyderabad</div><div class="wx-temp">28°</div><div class="wx-desc">Windy</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="widget">
+      <div class="widget-head"><h3>📻 About GNC</h3></div>
+      <div class="widget-body" style="font-size:0.78rem;color:var(--muted2);line-height:1.7;">
+        <p style="margin-bottom:10px;"><strong style="color:var(--white)">Gautam News Channel</strong> is India's fastest digital news platform, delivering real-time updates across politics, economy, sports, technology and more.</p>
+        <p>Trusted by 5 crore+ readers every month. Available 24×7 on Web, App and Smart TV.</p>
+      </div>
+    </div>
+
+  </aside>
+</div>
+
+<div class="tricolor"></div>
+
+<footer>
+  <div class="footer-inner">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <div class="fb-logo">Gautam <span>News</span></div>
+        <p>India's fastest and most trusted digital news channel. Real news. Real time. Real India. Prepared by Gautam and some support from Sonu kumar</p>
+      </div>
+      <div class="footer-col">
+        <h4>Sections</h4>
+        <a onclick="switchTab('home')">Home</a>
+        <a onclick="switchTab('politics')">Politics</a>
+        <a onclick="switchTab('economy')">Economy</a>
+        <a onclick="switchTab('world')">World</a>
+        <a onclick="switchTab('sports')">Sports</a>
+      </div>
+      <div class="footer-col">
+        <h4>More</h4>
+        <a onclick="switchTab('technology')">Technology</a>
+        <a onclick="switchTab('health')">Health</a>
+        <a onclick="switchTab('environment')">Environment</a>
+        <a onclick="switchTab('entertainment')">Entertainment</a>
+        <a onclick="switchTab('education')">Education</a>
+      </div>
+      <div class="footer-col">
+        <h4>Company</h4>
+        <a href="#">About Us</a>
+        <a href="#">Editorial Policy</a>
+        <a href="#">Advertise</a>
+        <a href="#">Careers</a>
+        <a href="#">Contact Us</a>
+      </div>
+      <div class="footer-col">
+        <h4>Follow Us</h4>
+        <a href="#">Twitter / X</a>
+        <a href="#">Instagram</a>
+        <a href="#">YouTube</a>
+        <a href="#">Facebook</a>
+        <a href="#">Telegram</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 Gautam News Channel. All rights reserved.</span>
+      <span>Privacy Policy · Terms of Service · Cookie Policy</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+// ── CLOCK ──────────────────────────────────────────────────────
+function updateClock() {
+  const now = new Date();
+  const h = String(now.getHours()).padStart(2,'0');
+  const m = String(now.getMinutes()).padStart(2,'0');
+  const s = String(now.getSeconds()).padStart(2,'0');
+  const clockEl = document.getElementById('clock');
+  if (clockEl) clockEl.innerHTML = h + ':' + m + ':<span class="seconds" id="sec">' + s + '</span>';
+
+  const days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const dateEl = document.getElementById('dateDisp');
+  if (dateEl) dateEl.innerHTML = days[now.getDay()] + '<br>' + now.getDate() + ' ' + months[now.getMonth()] + ' ' + now.getFullYear();
+
+  const hourChip = document.getElementById('curHourChip');
+  if (hourChip) {
+    const ampm = now.getHours() >= 12 ? 'PM' : 'AM';
+    const displayH = now.getHours() % 12 || 12;
+    hourChip.textContent = displayH + ':00 ' + ampm;
+  }
+}
+updateClock();
+setInterval(updateClock, 1000);
+
+// ── ACTIVE STATE ───────────────────────────────────────────────
+let currentCat = 'home';
+let currentState = 'National';
+
+// ── CATEGORY TABS ──────────────────────────────────────────────
+function switchTab(cat) {
+  currentCat = cat;
+
+  // Update tab button styles
+  document.querySelectorAll('.cat-tab').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.cat === cat);
+  });
+
+  // Show correct section
+  document.querySelectorAll('.content-section').forEach(sec => {
+    sec.classList.toggle('active', sec.id === 'sec-' + cat);
+  });
+
+  // After switching tab, apply current state filter to new section
+  applyStateFilter(currentState, false);
+
+  // Scroll to top of main
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+document.querySelectorAll('.cat-tab').forEach(btn => {
+  btn.addEventListener('click', () => switchTab(btn.dataset.cat));
+});
+
+// ── STATE FILTER ───────────────────────────────────────────────
+function applyStateFilter(state, scroll) {
+  currentState = state;
+
+  // Update pill styles
+  document.querySelectorAll('.state-pill').forEach(pill => {
+    pill.classList.toggle('active', pill.dataset.state === state);
+  });
+
+  // Filter cards in currently visible section
+  const activeSection = document.querySelector('.content-section.active');
+  if (!activeSection) return;
+
+  const cards = activeSection.querySelectorAll('.news-card');
+  let visibleCount = 0;
+
+  cards.forEach(card => {
+    const cardState = card.dataset.state || 'National';
+    const show = (state === 'National') || (cardState === state) || (cardState === 'National');
+    card.style.display = show ? '' : 'none';
+    if (show) visibleCount++;
+  });
+
+  // State notice
+  const notice = document.getElementById('state-notice-main');
+  if (notice) {
+    if (state !== 'National') {
+      notice.textContent = '📍 Showing news for: ' + state;
+      notice.classList.add('show');
+    } else {
+      notice.classList.remove('show');
+    }
+  }
+
+  // Empty state
+  let emptyEl = activeSection.querySelector('.empty-state');
+  if (visibleCount === 0) {
+    if (!emptyEl) {
+      emptyEl = document.createElement('div');
+      emptyEl.className = 'empty-state';
+      emptyEl.innerHTML = '<div class="icon">📰</div><h3>No stories found for ' + state + '</h3><p>Switch to 🇮🇳 National for all latest news.</p>';
+      activeSection.appendChild(emptyEl);
+    }
+    emptyEl.style.display = '';
+  } else {
+    if (emptyEl) emptyEl.style.display = 'none';
+  }
+
+  if (scroll) window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+document.querySelectorAll('.state-pill').forEach(pill => {
+  pill.addEventListener('click', () => applyStateFilter(pill.dataset.state, true));
+});
+
+// ── NEWSLETTER ─────────────────────────────────────────────────
+function subscribeNewsletter() {
+  const emailEl = document.getElementById('nl-email');
+  const email = emailEl ? emailEl.value.trim() : '';
+  const successEl = document.getElementById('nl-success');
+  if (!email || !email.includes('@')) {
+    if (emailEl) { emailEl.style.borderColor='var(--red)'; setTimeout(()=>emailEl.style.borderColor='',2000); }
+    return;
+  }
+  if (successEl) { successEl.style.display = 'block'; }
+  if (emailEl) emailEl.value = '';
+}
+
+// ── INIT ───────────────────────────────────────────────────────
+// Ensure home tab is active and all state-notice elements are linked
+applyStateFilter('National', false);
+</script>
+</body>
+</html>
